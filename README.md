@@ -1,14 +1,27 @@
 # gdg-nola-talk
 
-This document contains notes for the talk given to GDG New Orleans.
+This document contains notes for my talk given to GDG New Orleans.
 
 # How to use the command line <!-- 5 mins -->
 
-### MacOS and Unix based systems
+### MacOS
+
+* Built in - `<CMD-Space>` "terminal"
+* iTerm2 - [https://iterm2.com/](https://iterm2.com/)
 
 ### Windows
 
+* Windows Subsystem for Linux (Windows 10) - [Installation](https://itsfoss.com/install-bash-on-windows/)
+* Cygwin - [https://www.cygwin.com/](https://www.cygwin.com/)
+
 ### Bash vs Zsh
+
+* Bash - Bourne Again Shell
+* Zsh - Z shell
+* Bash is default on most Linux based systems.
+* Zsh is recently the default on MasOS as of 2019.
+* Almost identical in terms of functionality.
+* I'll be running the following commands in Bash.
 
 # The Basics <!-- 10 mins -->
 
@@ -21,7 +34,8 @@ Write input back to standard output
 **Examples**
 
     echo "Hello, world"
-	echo "Write text to file" >> file.txt
+
+	echo "Direct output to a file" > file.txt
 
 ## Navigation
 
@@ -38,6 +52,7 @@ Change directory to the one specified
     cd
     cd ~
     cd $HOME
+
     cd Downloads
 
 ### `ls`
@@ -58,15 +73,24 @@ Display the contents of a file
 
 **Examples**
 
-    cat repeated_lines.txt
+    cat file.txt
 
+	cat <<EOF >cat_contents.txt
+	all of this
+	will go
+	in my new file
+	"cat_contents.txt"
+	Until I type "EOF"
+	to denote the End Of File
+	EOF
+	
 ### `less`
 
 Display file contents within a buffer
 
 **Examples**
 
-    less lipsum.txt
+    less cat_contents.txt
 
 ### `head`
 
@@ -75,7 +99,6 @@ Display first lines of a file
 **Examples**
 
     head lipsum.txt
-    head -n 20 lipsum.txt
 
 ### `tail`
 
@@ -84,7 +107,6 @@ Display last lines of a file
 **Examples**
 
     tail lipsum.txt
-    tail -n 20 lipsum.txt
 
 ### `wc`
 
@@ -92,9 +114,7 @@ Count number of words, lines, characters in a file
 
 **Examples**
 
-    wc lipsum.txt
-	wc -l lipsum.txt
-	wc -c lipsum.txt
+	wc lipsum.txt
 
 ### `grep`
 
@@ -103,6 +123,7 @@ Search file for a specific word
 **Examples**
 
     grep lorem lipsum.txt
+
 	grep my_function -r code_dir
 
 [Further reading](https://www.gnu.org/software/grep/manual/grep.html)
@@ -113,15 +134,27 @@ Search file for a specific word
 
 Substitue or delete selected characters from a file
 
+**Examples**
 
+    tr "f" "p" cat_contents.txt
+
+    tr -d "\n" cat_contents.txt
 
 ### `cut`
 
 Parse selected portions from lines of a file
 
-### `uniq`
+**Examples**
+
+    cut -d "," -f 3 Tree_Locations.csv > Trees.txt
 
 ## `sort`
+
+**Examples**
+
+    sort Trees.txt > Alphabetical_trees.txt
+
+	sort -u Trees.txt > Unique_trees.txt
 
 ## The big guns
 
@@ -148,37 +181,125 @@ Most command provide a help flag `-h` or `--help` that displays basic command us
 Display the manual for a command
 
 **Examples**
-```
-man less
-man grep
-man man
-```
+
+    man less
+    man grep
+    man man
 
 ### `help`
 
 Help for builtin commands
 
 **Examples**
-```
-help cd
-```
+
+    help cd
+
 
 ## Combining commands with the Pipe operator `|`
+
+A pipe, `|`, connects the output from one command to be used as the input to another command
+
+**Examples**
+
+	cat lipsum.txt | less
+
+    cat Tree_Locations.csv | cut -d, -f3 | sort -u
+
 
 # Loops and conditional execution <!-- 5 mins... if time permits -->
 
 ### `for` loops
 
+The classic construct for iteration; convenient when iterating over items.
+
+**Examples**
+
+    for I in {0 1 2 3 4 5 6 7 8 9}; do
+	  echo $I
+    done
+
+    for FILE in $(ls); do
+	  echo $FILE
+    done
+
 ### `while` loops
+
+Another looping construst, convenient for iterating over lines of a file
+
+**Examples**
+
+	while read LINE; do
+	  echo $LINE
+    done < lipsum.txt
 
 ### `&&` operator
 
+Optionally execute a second command based on success of first command
+
+**Examples**
+
+    ./successful_cmd && echo "success"  # success
+
+    ./failure_cmd && echo "failure"  # No output
+
+
 ### `||` operator
+
+Optionally execute a second command based on success of first command
+
+**Examples**
+
+    ./successful_cmd || echo "success"  # No output
+
+    ./failure_cmd || echo "failure"  # failure
 
 # Commands for web dev <!-- 10 mins -->
 
 ### `curl`
 
+The de-facto standard for command line web requests
+
+**Examples**
+
+	curl www.example.com
+
+	curl -o example.html www.example.com
+
+    curl https://reqres.in/api/users/
+
 ### `http`
 
+**Examples**
+
+	http https://reqres.in/api/users/
+
+	http POST https://reqres.in/api/users/ first_name="Ryan A" job="Backend Extraordinaire" age:=30
+
 ### `jq`
+
+Command line tool for processing JSON
+
+**Examples**
+
+	echo '{"name": "Ryan A", "job": "Backend"}' | jq
+
+	echo '{"name": "Ryan A", "job": "Backend"}' | jq .job
+
+	http https://reqres.in/api/users/ | jq .data[].avatar
+
+### `wget`
+
+Tool for network downloads
+
+**Examples**
+
+	wget "https://reqres.in/img/faces/1-image.jpg" -O image.jpg
+
+# Piecing it together
+
+    for I in $(seq 1 10); do
+      IMAGE_URL=$(http https://api.thedogapi.com/v1/images/search/ | jq .[0].url | tr -d '"')
+      FILENAME=$(basename -- "${IMAGE_URL}")
+	  FILE_EXT="${FILENAME##*.}"
+      curl "${IMAGE_URL}" -o "image_${I}.${FILE_EXT}"
+    done
