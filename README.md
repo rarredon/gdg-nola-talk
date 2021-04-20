@@ -214,12 +214,8 @@ The classic construct for iteration; convenient when iterating over items.
 
 **Examples**
 
-    for I in {0 1 2 3 4 5 6 7 8 9}; do
+    for I in 0 1 2 3 4 5 6 7 8 9; do
 	  echo $I
-    done
-
-    for FILE in $(ls); do
-	  echo $FILE
     done
 
 ### `while` loops
@@ -275,7 +271,7 @@ User-friendly http client, convenient for API development
 
 	http https://reqres.in/api/users/
 
-	http POST https://reqres.in/api/users/ first_name="Ryan A" job="Backend Extraordinaire" age:=30
+	http POST https://reqres.in/api/users/ first_name="Ryan A" job="Backend Extraordinaire" zip_code:=70119
 
 [Further Reading](https://httpie.io/)
 
@@ -290,6 +286,8 @@ Flexible text processor for JSON
 	echo '{"name": "Ryan A", "job": "Backend"}' | jq .job
 
 	http https://reqres.in/api/users/ | jq .data[].avatar
+
+[Further Reading](https://stedolan.github.io/jq/manual/)
 
 ### `wget`
 
